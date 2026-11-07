@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -446,9 +445,11 @@ select {
     <section class="canvas-area">
       <div class="canvas-top">
         <div>
-          <div class="canvas-heading">My Artwork</div>
+          <div class="canvas-heading" id="artworkTitle">My Artwork</div>
           <div class="canvas-subtitle">Create something amazing ✨</div>
         </div>
+
+        <button class="action-btn" onclick="renameArtwork()">✏️ Rename</button>
       </div>
 
       <div class="canvas-frame">
@@ -550,6 +551,34 @@ const picker = document.getElementById("colourPicker");
 const sizeInput = document.getElementById("brushSize");
 const opacityInput = document.getElementById("opacity");
 const shapeStyle = document.getElementById("shapeStyle");
+
+// Load the saved artwork name, or use the default name.
+let artworkName = localStorage.getItem("artworkName") || "My Artwork";
+
+document.getElementById("artworkTitle").textContent = artworkName;
+
+// Rename the artwork and remember its name.
+function renameArtwork() {
+  const newName = prompt(
+    "What would you like to call your artwork?",
+    artworkName
+  );
+
+  if (newName === null) return;
+
+  const cleanName = newName.trim();
+
+  if (cleanName === "") {
+    alert("Please enter an artwork name.");
+    return;
+  }
+
+  artworkName = cleanName;
+
+  document.getElementById("artworkTitle").textContent = artworkName;
+
+  localStorage.setItem("artworkName", artworkName);
+}
 
 function resizeCanvas() {
   const old = document.createElement("canvas");
@@ -831,7 +860,11 @@ function saveImage() {
   exportCtx.drawImage(canvas, 0, 0);
 
   const link = document.createElement("a");
-  link.download = "my-sketch.png";
+
+  // Use the artwork name as the downloaded PNG filename.
+  const safeFilename = artworkName.replace(/[\\/:*?"<>|]/g, "_");
+  link.download = safeFilename + ".png";
+
   link.href = exportCanvas.toDataURL("image/png");
   link.click();
 }
